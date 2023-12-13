@@ -1,0 +1,84 @@
+#include <inttypes.h>
+#include <stdlib.h>
+#include <math.h>
+
+#include "avc-lib.h"
+#include "avc-font.h"
+#include "ArialNum32x50.c"
+
+extern int screen_size_x;
+extern int screen_size_y;
+extern short * frame_buf;
+
+//---
+
+void set_pixel(uint16_t * buf,int x, int y, uint16_t colour)
+{
+int sz_x,sz_y;
+int location;
+
+sz_x = screen_size_x;
+sz_y = screen_size_y;
+
+if(x<0) x=1;
+if(x > sz_x-1) x=sz_x-1;
+if(y<0) y=0;
+if(y>sz_y-1) y=sz_y-1;
+
+location = x + (y*sz_x) ; 
+buf[location] = colour;
+}
+
+void clear_screen(uint16_t pixval)
+{
+for(int p=0;p<(screen_size_x*screen_size_y);p++)
+    frame_buf[p] = pixval;
+}
+
+short rgb565(short red,short green,short blue)
+{
+short colour= 0;
+colour = (red & 0x1f) <<11;
+colour = colour | (green & 0x3f) <<6;
+colour = colour | blue & 0x1f;
+return colour;
+}
+
+void plot_line (uint16_t * buf,int x0, int y0, int x1, int y1,uint16_t colour)
+{
+int dx =  abs (x1 - x0), sx = x0 < x1 ? 1 : -1;
+int dy = -abs (y1 - y0), sy = y0 < y1 ? 1 : -1; 
+int err = dx + dy, e2; //error value e_xy 
+
+for (;;) //evah
+    { 
+    set_pixel (buf,x0,y0,colour);
+    if (x0 == x1 && y0 == y1) break;
+    e2 = 2 * err;
+    if (e2 >= dy) { err += dy; x0 += sx; } // e_xy+e_x > 0 
+    if (e2 <= dx) { err += dx; y0 += sy; } // e_xy+e_y < 0 
+    }
+}
+
+
+void plot_large_character(int16_t * buf,int x, int y,uint8_t char_num,uint16_t colour)
+{
+int horiz,vert;
+int xx,yy;
+unsigned short test_word;
+
+for(vert=0,yy=0; vert<24;vert++,yy+=1)
+    {
+    test_word = ASCII_16x24[((char_num-32) * 24)+vert]; 
+    for(horiz =0,xx=0; horiz<16;horiz++,xx++)
+        {
+        if(test_word & 0x0001)
+            { 
+            set_pixel(buf,x+xx,y+yy,colour);
+            }
+        test_word >>=1; 
+        }
+    }
+}
+
+
