@@ -114,6 +114,8 @@ plot_thick_line(graph_buf,100,100,600,100,WHITE);
 
 plot_rectangle(frame_buf,200,150,450,25,GREEN);
 
+plot_thick_rectangle(frame_buf,700,150,50,25,CYAN);
+
 memcpy(frame_buf+(screen_size_x * 250),graph_buf,screen_size_x * 300 *2);
 
 //test sys buffer
@@ -133,7 +135,7 @@ plot_thick_line(frame_buf,100,100,600,100,YELLOW);
 
 plot_large_character(frame_buf,300,750,'A',WHITE);
 
-plot_large_string(frame_buf,400,750,"Hello",CYAN);
+plot_large_string(frame_buf,400,750,"Marvellous !",CYAN);
 //plot_large_character(graph_buf,50,100,'B',WHITE);
 
 //memcpy(frame_buf+(screen_size_x * 50),graph_buf,screen_size_x * 300 *2);

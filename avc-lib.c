@@ -1,6 +1,7 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 #include "avc-lib.h"
 #include "avc-font.h"
@@ -106,15 +107,12 @@ plot_line(buf, x0, y0, x0, y0+sz_y,colour);
 plot_line(buf, x0+sz_x, y0, x0+sz_x, y0+sz_y,colour);
 }
 
-void plot_thick_rectangle(int16_t * buf, int x0, int y0,int sz_x, int sz_y,int thickness, uint16_t colour)
+void plot_thick_rectangle(int16_t * buf, int x0, int y0,int sz_x, int sz_y,uint16_t colour)
 {
-for(int n=0 ; n<thickness;n++)
-    {
-    plot_thick_line(buf, x0, y0, x0+sz_x, y0,colour);
-    plot_thick_line(buf, x0, y0+sz_y, x0+sz_x, y0+sz_y,colour);
-    plot_thick_line(buf, x0, y0, x0, y0+sz_y,colour);
-    plot_thick_line(buf, x0+sz_x, y0, x0+sz_x, y0+sz_y,colour);
-    }
+plot_thick_line(buf, x0, y0, x0+sz_x, y0,colour);
+plot_thick_line(buf, x0, y0+sz_y, x0+sz_x, y0+sz_y,colour);
+plot_thick_line(buf, x0, y0, x0, y0+sz_y,colour);
+plot_thick_line(buf, x0+sz_x, y0, x0+sz_x, y0+sz_y,colour);
 }
 
 /*
