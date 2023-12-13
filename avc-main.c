@@ -82,7 +82,7 @@ close(fbfd); //It seems we can close this straight away (see Man)
 
 clear_screen(rgb565(0x0,0x0,0x03));
 
-sleep(1);
+usleep(200000);
 short pixy;
 
 //test the title buffer
@@ -99,6 +99,8 @@ for(int p=0;p<(screen_size_x* 300 );p++)
 
 plot_line(graph_buf, 20,20,300,62,WHITE);
 
+
+
 memcpy(frame_buf+(screen_size_x * 50),graph_buf,screen_size_x * 300 *2);
 
 //test app buffer
@@ -108,7 +110,9 @@ pixy = MAGENTA;
 for(int p=0;p<(screen_size_x* 300 );p++)
     graph_buf[p] = pixy;
 
+plot_thick_line(graph_buf,100,100,600,100,WHITE);
 
+plot_rectangle(frame_buf,200,150,450,25,GREEN);
 
 memcpy(frame_buf+(screen_size_x * 250),graph_buf,screen_size_x * 300 *2);
 
@@ -121,11 +125,15 @@ memcpy(frame_buf+(screen_size_x * 250),graph_buf,screen_size_x * 300 *2);
 //for(int n=0;n<300;n++)
   //  set_screen_pixel( 100+n,200+n,YELLOW) ; //rgb565(0x0f,0x0f,0x0f));
 
-plot_line(frame_buf,100,100,200,200,YELLOW);
+plot_line(frame_buf,100,100,200,130,YELLOW);
+
+plot_thick_line(frame_buf,100,100,600,100,YELLOW);
+
+
 
 plot_large_character(frame_buf,300,750,'A',WHITE);
 
-
+plot_large_string(frame_buf,400,750,"Hello",CYAN);
 //plot_large_character(graph_buf,50,100,'B',WHITE);
 
 //memcpy(frame_buf+(screen_size_x * 50),graph_buf,screen_size_x * 300 *2);

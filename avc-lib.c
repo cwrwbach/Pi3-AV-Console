@@ -59,6 +59,78 @@ for (;;) //evah
     if (e2 <= dx) { err += dx; y0 += sy; } // e_xy+e_y < 0 
     }
 }
+void plot_dotted_line (int16_t * buf, int x0, int y0, int x1, int y1,uint16_t colour)
+{
+int dx =  abs (x1 - x0), sx = x0 < x1 ? 1 : -1;
+int dy = -abs (y1 - y0), sy = y0 < y1 ? 1 : -1; 
+int err = dx + dy, e2; //error value e_xy 
+int count;
+count = 0;
+for (;;) //evah
+    { 
+    if(count++ & 0x04)// miss out spaces
+        set_pixel (buf,x0,y0,colour);
+    if (x0 == x1 && y0 == y1) break;
+    e2 = 2 * err;
+    if (e2 >= dy) { err += dy; x0 += sx; } // e_xy+e_x > 0 
+    if (e2 <= dx) { err += dx; y0 += sy; } // e_xy+e_y < 0 
+    }
+}
+
+
+void plot_thick_line (int16_t * buf, int x0, int y0, int x1, int y1,uint16_t colour)
+{
+int dx =  abs (x1 - x0), sx = x0 < x1 ? 1 : -1;
+int dy = -abs (y1 - y0), sy = y0 < y1 ? 1 : -1; 
+int err = dx + dy, e2; //error value e_xy 
+for (;;) //evah
+    { 
+    set_pixel (buf,x0,y0,colour);
+    set_pixel (buf,x0+1,y0,colour);
+    set_pixel (buf,x0,y0+1,colour);
+    set_pixel (buf,x0+1,y0+1,colour);
+    if (x0 == x1 && y0 == y1) break;
+    e2 = 2 * err;
+    if (e2 >= dy) { err += dy; x0 += sx; } // e_xy+e_x > 0 
+    if (e2 <= dx) { err += dx; y0 += sy; } // e_xy+e_y < 0 
+    }
+}
+
+
+
+void plot_rectangle(int16_t * buf, int x0, int y0,int sz_x, int sz_y, uint16_t colour)
+{
+plot_line(buf, x0, y0, x0+sz_x, y0,colour);
+plot_line(buf, x0, y0+sz_y, x0+sz_x, y0+sz_y,colour);
+plot_line(buf, x0, y0, x0, y0+sz_y,colour);
+plot_line(buf, x0+sz_x, y0, x0+sz_x, y0+sz_y,colour);
+}
+
+void plot_thick_rectangle(int16_t * buf, int x0, int y0,int sz_x, int sz_y,int thickness, uint16_t colour)
+{
+for(int n=0 ; n<thickness;n++)
+    {
+    plot_thick_line(buf, x0, y0, x0+sz_x, y0,colour);
+    plot_thick_line(buf, x0, y0+sz_y, x0+sz_x, y0+sz_y,colour);
+    plot_thick_line(buf, x0, y0, x0, y0+sz_y,colour);
+    plot_thick_line(buf, x0+sz_x, y0, x0+sz_x, y0+sz_y,colour);
+    }
+}
+
+/*
+void plot_button(int16_t * buf,int x0,int y0,int sz_x, int sz_y,uint16_t backround_col,uint16_t border_col,uint16_t text_col,char text[40])
+{
+fill_surface(buf,backround_col);
+plot_rectangle(buf,0,0,sz_x,sz_y,border_col);
+plot_large_string(buf,10,20,text,text_col);
+}
+
+*/
+
+
+
+
+
 
 
 void plot_large_character(int16_t * buf,int x, int y,uint8_t char_num,uint16_t colour)
@@ -81,4 +153,17 @@ for(vert=0,yy=0; vert<24;vert++,yy+=1)
     }
 }
 
+
+void plot_large_string(int16_t * buf , int x, int y,uint8_t * string ,uint16_t colour)
+{
+int len = strlen(string);
+char char_num;
+int xp = 0;
+
+for(int s=0;s<len;s++,xp++)
+    {
+    char_num = string[s];
+    plot_large_character(buf,x+xp*15,y,char_num,colour);
+    }
+}
 
