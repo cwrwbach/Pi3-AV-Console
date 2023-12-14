@@ -115,6 +115,18 @@ plot_thick_line(buf, x0, y0, x0, y0+sz_y,colour);
 plot_thick_line(buf, x0+sz_x, y0, x0+sz_x, y0+sz_y,colour);
 }
 
+void plot_filled_rectangle(int16_t * buf, int x0, int y0,int sz_x, int sz_y, uint16_t colour)
+{
+for(int n = 0; n< sz_y;n++)
+    {
+plot_line(buf, x0, y0+n, x0+sz_x, y0+n,colour);
+//plot_line(buf, x0, y0+sz_y, x0+sz_x, y0+sz_y,colour);
+//plot_line(buf, x0, y0, x0, y0+sz_y,colour);
+//plot_line(buf, x0+sz_x, y0, x0+sz_x, y0+sz_y,colour);
+    }
+}
+
+
 /*
 void plot_button(int16_t * buf,int x0,int y0,int sz_x, int sz_y,uint16_t backround_col,uint16_t border_col,uint16_t text_col,char text[40])
 {
@@ -123,12 +135,8 @@ plot_rectangle(buf,0,0,sz_x,sz_y,border_col);
 plot_large_string(buf,10,20,text,text_col);
 }
 
+
 */
-
-
-
-
-
 
 
 void plot_large_character(int16_t * buf,int x, int y,uint8_t char_num,uint16_t colour)
@@ -150,7 +158,6 @@ for(vert=0,yy=0; vert<24;vert++,yy+=1)
         }
     }
 }
-
 
 void plot_large_string(int16_t * buf , int x, int y,uint8_t * string ,uint16_t colour)
 {
