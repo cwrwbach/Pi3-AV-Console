@@ -175,7 +175,7 @@ for(int s=0;s<len;s++,xp++)
 }
 
 
-void copy_surface_to_image(uint32_t *buf,int loc_x,int loc_y,int sz_x,int sz_y)
+void copy_surface_to_image(uint32_t *buf,uint loc_x,uint loc_y,uint sz_x,uint sz_y)
 {
 int x,y;
 int y_offset;

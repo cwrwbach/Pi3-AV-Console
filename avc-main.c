@@ -15,18 +15,6 @@
 #include <inttypes.h>
 #include <math.h>
 
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <linux/fb.h>
-#include <string.h>
-#include <sys/ioctl.h>
-#include <fcntl.h>
-#include <stddef.h>
-#include <sys/types.h>
-
-
 #include "avc-lib.h"
 #include "avc-colours.h"
 
@@ -53,42 +41,6 @@ uint32_t * scope_buf;
 uint32_t * wfall_buf;
 
 //================
-
-
-int tiempo(void) {
-//int fb = open("/dev/fb0", O_RDWR);
-__u32 dummy = 0;
-
-int i;
-struct timeval tv;
-unsigned long time_us,start,stop,delta;
-int error_code;
-float rate;
-
-gettimeofday(&tv, NULL);
-start = 1000000 * tv.tv_sec + tv.tv_usec;
-
-for (i = 0; i < 100; i++) 
-    {
-    error_code = ioctl(fbfd, FBIO_WAITFORVSYNC, &dummy);
-    gettimeofday(&tv, NULL);
-    time_us = 1000000 * tv.tv_sec + tv.tv_usec;
-  //  printf("Time is %lu, error code is %i\n", time_us, error_code);
-    }
-
-gettimeofday(&tv, NULL);
-stop = 1000000 * tv.tv_sec + tv.tv_usec;
-delta = stop - start;
-
-printf(" delta: %lu mSecs \n",delta/1000);
-
-rate = (float)100000000 / (float) delta;
-
-printf(" Frame rate = %f \n",rate); 
-
-}
-
-
 
 void draw_grid()
 {
@@ -130,12 +82,11 @@ for(int n = 0; n<bins_n; n++)
     nv++;
     }
 }
+
 //=========
 
 
-
 #if 0
-
 
 void draw_waterfall()
 {
@@ -189,50 +140,7 @@ copy_surface_to_image(wfall_buf,50,0,WFALL_WIDTH,WFALL_HEIGHT); // (buf,loc_x,lo
 }
 #endif
 
-#if 0
-/*
-void xxxdraw_fft()
-{
-int loc_x,loc_y;
-int dummy;
-int last;
-int db_lev;
-
-loc_x=10;
-loc_y=10;
-last = 255;
-db_lev = 255;
-
-fill_surface(&specanz,rgb565(0x01,0x07,0x01));
-draw_grid();
-
-for(int iii = 4; iii<1040;iii+=1)
-    {
-    db_lev=fft_video_buf[iii];
-    plot_line(&specanz,iii,255,iii,db_lev+5,BLUE);
-
-    plot_line(&specanz,iii,last,iii,db_lev,WHITE);
-    last = db_lev;
-    }
-
-usleep(100*mS); //FIXME - rate should be controled elsewhere
-
-ioctl(fbfd, FBIO_WAITFORVSYNC, &dummy); // Wait for frame sync
-copy_surface_to_image(&specanz,loc_x,loc_y);
-refresh_screen();
-//ioctl(fbfd, FBIO_WAITFORVSYNC, &dummy); // Wait for frame sync
-}
-
-*/
-
-
-
-
-
-#endif
-
 //=========
-//-------------
 
 void main()
 {
@@ -265,7 +173,6 @@ scope_buf = malloc(SCOPE_WIDTH*SCOPE_HEIGHT*4);
 wfall_buf = malloc(WFALL_WIDTH*WFALL_HEIGHT*4);
 // map framebuffer to user memory 
 frame_buf = mmap(0, fb_data_size, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
-//close(fbfd); //It seems we can close this straight away (see Man)
 
 clear_screen(0x00000000);
 
@@ -273,38 +180,24 @@ plot_large_string(frame_buf,360,300,"SCOPE",WHITE);
 
 plot_thick_rectangle(scope_buf,0,0,700,SCOPE_HEIGHT-50,BLUE);
 
-
-             
-
 draw_grid();
 
 plot_line(scope_buf,350,230,350,250,RED);
 
 
-   while(1)
-                {
+while(1)
+    {
 
-//https://forums.raspberrypi.com/viewtopic.php?t=19073
+    for(int w=0;w<60;w++)
+        err= ioctl(fbfd, FBIO_WAITFORVSYNC, &dummy); // Wait for frame sync
 
-//https://raspberrycompote.blogspot.com/2014/03/low-level-graphics-on-raspberry-pi-part_14.html
-//https://raspberrycompote.blogspot.com/2014/03/low-level-graphics-on-raspberry-pi-part_16.html
-
-for(int w=0;w<60;w++)
-    err= ioctl(fbfd, FBIO_WAITFORVSYNC, &dummy); // Wait for frame sync
-
-draw_grid();
-copy_surface_to_image(scope_buf,50,0,SCOPE_WIDTH,SCOPE_HEIGHT); // (buf,loc_x,lox_y,sz_x,sz_y)
-
-
-draw_fft();
-//if(nv > 580) nv=1;
-
-
-                }
+    draw_grid();
+    copy_surface_to_image(scope_buf,50,0,SCOPE_WIDTH,SCOPE_HEIGHT); // (buf,loc_x,lox_y,sz_x,sz_y)
+    draw_fft();
+    }
 
 printf(" Debug at %d\n",__LINE__);
 sleep(1);
-return ;
 
 while(1) sleep(1); //stopper
 }
