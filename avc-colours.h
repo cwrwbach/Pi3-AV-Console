@@ -1,13 +1,13 @@
 
-#define WHITE   0xffff
-#define BLACK   0x0000
-#define GREY    0x7bcf
-#define RED     0xf800
-#define GREEN   0x07e0
-#define BLUE    0x001f
-#define YELLOW  0xb500
-#define CYAN    0x07ff
-#define MAGENTA 0xf81f
+#define WHITE   0x00ffffff
+#define BLACK   0x00000000
+#define GREY    0x0x404040
+#define RED     0x00ff0000
+#define GREEN   0x0000ff00
+#define BLUE    0x000000ff
+#define YELLOW  0x00ffff00
+#define CYAN    0x0000ffff
+#define MAGENTA 0x00ff00ff
 #define DARK_GREEN 0x0180
 
 

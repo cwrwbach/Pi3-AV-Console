@@ -5,18 +5,19 @@
 
 #include "avc-lib.h"
 #include "avc-font.h"
+#include "avc-colours.h"
 #include "ArialNum32x50.c"
 
 extern int screen_size_x;
 extern int screen_size_y;
-extern short * frame_buf;
+extern uint32_t * frame_buf;
 
 //---
 
-void set_pixel(uint16_t * buf,int x, int y, uint16_t colour)
+void set_pixel(uint32_t * buf,int x, int y, uint32_t colour)
 {
 int sz_x,sz_y;
-int location;
+uint32_t location;
 
 sz_x = screen_size_x;
 sz_y = screen_size_y;
@@ -27,10 +28,11 @@ if(y<0) y=0;
 if(y>sz_y-1) y=sz_y-1;
 
 location = x + (y*sz_x) ; 
+
 buf[location] = colour;
 }
 
-void clear_screen(uint16_t pixval)
+void clear_screen(uint32_t pixval)
 {
 for(int p=0;p<(screen_size_x*screen_size_y);p++)
     frame_buf[p] = pixval;
@@ -45,7 +47,7 @@ colour = colour | blue & 0x1f;
 return colour;
 }
 
-void plot_line (uint16_t * buf,int x0, int y0, int x1, int y1,uint16_t colour)
+void plot_line (uint32_t * buf,int x0, int y0, int x1, int y1,uint32_t colour)
 {
 int dx =  abs (x1 - x0), sx = x0 < x1 ? 1 : -1;
 int dy = -abs (y1 - y0), sy = y0 < y1 ? 1 : -1; 
@@ -60,7 +62,7 @@ for (;;) //evah
     if (e2 <= dx) { err += dx; y0 += sy; } // e_xy+e_y < 0 
     }
 }
-void plot_dotted_line (int16_t * buf, int x0, int y0, int x1, int y1,uint16_t colour)
+void plot_dotted_line (uint32_t * buf, int x0, int y0, int x1, int y1,uint32_t colour)
 {
 int dx =  abs (x1 - x0), sx = x0 < x1 ? 1 : -1;
 int dy = -abs (y1 - y0), sy = y0 < y1 ? 1 : -1; 
@@ -79,7 +81,7 @@ for (;;) //evah
 }
 
 
-void plot_thick_line (int16_t * buf, int x0, int y0, int x1, int y1,uint16_t colour)
+void plot_thick_line (uint32_t * buf, int x0, int y0, int x1, int y1,uint32_t colour)
 {
 int dx =  abs (x1 - x0), sx = x0 < x1 ? 1 : -1;
 int dy = -abs (y1 - y0), sy = y0 < y1 ? 1 : -1; 
@@ -99,15 +101,15 @@ for (;;) //evah
 
 
 
-void plot_rectangle(int16_t * buf, int x0, int y0,int sz_x, int sz_y, uint16_t colour)
+void plot_rectangle(uint32_t * buf, int x0, int y0,int sz_x, int sz_y, uint32_t colour)
 {
-plot_line(buf, x0, y0, x0+sz_x, y0,colour);
-plot_line(buf, x0, y0+sz_y, x0+sz_x, y0+sz_y,colour);
+plot_line(buf, x0, y0, x0+sz_x, y0,colour); //top horiz
+plot_line(buf, x0, y0+sz_y, x0+sz_x, y0+sz_y,colour); //bot horiz
 plot_line(buf, x0, y0, x0, y0+sz_y,colour);
 plot_line(buf, x0+sz_x, y0, x0+sz_x, y0+sz_y,colour);
 }
 
-void plot_thick_rectangle(int16_t * buf, int x0, int y0,int sz_x, int sz_y,uint16_t colour)
+void plot_thick_rectangle(uint32_t * buf, int x0, int y0,int sz_x, int sz_y,uint32_t colour)
 {
 plot_thick_line(buf, x0, y0, x0+sz_x, y0,colour);
 plot_thick_line(buf, x0, y0+sz_y, x0+sz_x, y0+sz_y,colour);
@@ -115,7 +117,7 @@ plot_thick_line(buf, x0, y0, x0, y0+sz_y,colour);
 plot_thick_line(buf, x0+sz_x, y0, x0+sz_x, y0+sz_y,colour);
 }
 
-void plot_filled_rectangle(int16_t * buf, int x0, int y0,int sz_x, int sz_y, uint16_t colour)
+void plot_filled_rectangle(uint32_t * buf, int x0, int y0,int sz_x, int sz_y, uint32_t colour)
 {
 for(int n = 0; n< sz_y;n++)
     {
@@ -139,7 +141,7 @@ plot_large_string(buf,10,20,text,text_col);
 */
 
 
-void plot_large_character(int16_t * buf,int x, int y,uint8_t char_num,uint16_t colour)
+void plot_large_character(uint32_t * buf,int x, int y,uint8_t char_num,uint32_t colour)
 {
 int horiz,vert;
 int xx,yy;
@@ -159,7 +161,7 @@ for(vert=0,yy=0; vert<24;vert++,yy+=1)
     }
 }
 
-void plot_large_string(int16_t * buf , int x, int y,uint8_t * string ,uint16_t colour)
+void plot_large_string(uint32_t * buf , int x, int y,uint8_t * string ,uint32_t colour)
 {
 int len = strlen(string);
 char char_num;
@@ -172,3 +174,21 @@ for(int s=0;s<len;s++,xp++)
     }
 }
 
+
+void copy_surface_to_image(uint32_t *buf,int loc_x,int loc_y,int sz_x,int sz_y)
+{
+int x,y;
+int y_offset;
+uint32_t src_ptr;
+
+src_ptr=0;
+
+for(y=0;y<sz_y;y++) //height
+    {
+    y_offset = (loc_y + y) * sz_x;
+    for(x=0;x<sz_x;x++) //width
+        {
+        frame_buf[y_offset +x +loc_x] = buf[src_ptr++]; 
+        }
+    }
+}
