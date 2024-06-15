@@ -14,14 +14,14 @@
 
 
 
-#define SERVER "192.168.2.242" //222"
+#define SERVER "192.168.2.222" //222"
 #define PORT 11361	
 #define FFT_SIZE 1024
 #define PAK_LEN 1280
 #define HEADER_LEN 256
 
 char in_pak_buf[PAK_LEN];
-char fft_video_buf[FFT_SIZE];
+extern char fft_video_buf[FFT_SIZE];
 
 int sock_fd;
 
@@ -77,6 +77,9 @@ while(1)
     if(id_type ==0x42) //needs defining in new header structure
     
         {
+
+//printf(" GOT A TYPE 42 \n");
+
         for(int i=0; i<1024;i++)
             fft_video_buf[i] = in_pak_buf[i+HEADER_LEN];
   

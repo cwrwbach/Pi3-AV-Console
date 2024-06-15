@@ -18,6 +18,8 @@
 #include "avc-lib.h"
 #include "avc-colours.h"
 
+#define FFT_SIZE 1024
+
 #define FRAME_BUF_WIDTH 800
 #define FRAME_BUF_HEIGHT 480
 #define SCOPE_WIDTH 700
@@ -31,6 +33,7 @@ struct fb_fix_screeninfo finfo;
 int fbfd; // framebuffer file descriptor
 
 long int screensize ;
+char fft_video_buf[FFT_SIZE];
 
 uint screen_size_x;
 uint screen_size_y;
@@ -67,7 +70,7 @@ for(i=1;i<n_verts-2;i++)
 void draw_fft()
 {
 int bins_n;
-int val; 
+uint8_t val;
 int nv;
 
 nv=0;
@@ -77,7 +80,8 @@ bins_n = 600;
 
 for(int n = 0; n<bins_n; n++)
     {
-    val = 230 - rand() % 50;
+    //val = 230 - rand() % 50;
+val = fft_video_buf[n];
     plot_line(frame_buf, nv+100, val, nv+100, 230, WHITE);
     nv++;
     }
@@ -153,6 +157,8 @@ int nv;
 //int dummy;
 __u32 dummy = 0;
 
+start_server_stream();
+
 
 nv=0;
 
@@ -188,7 +194,7 @@ plot_line(scope_buf,350,230,350,250,RED);
 while(1)
     {
 
-    for(int w=0;w<60;w++)
+    for(int w=0;w<10;w++)
         err= ioctl(fbfd, FBIO_WAITFORVSYNC, &dummy); // Wait for frame sync
 
     draw_grid();
