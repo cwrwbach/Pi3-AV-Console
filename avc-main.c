@@ -155,38 +155,21 @@ for(point=0;point<800;point++) //FFT SIZE
     {
     inx = 255-(fft_video_buf[point]);
 
- //   colour =(turbo[fft_val][0]/8,turbo[fft_val][1]/4,turbo[fft_val][2]/8);
+    red = (uint32_t) turbo[inx][0];
+    green=(uint32_t) turbo[inx][1];
+    blue =(uint32_t) turbo[inx][2];
+    red = red<<16;
+    green = green <<8;
 
-red = (uint32_t) turbo[inx][0];
-green=(uint32_t) turbo[inx][1];
-blue =(uint32_t) turbo[inx][2];
-red = red<<16;
-green = green <<8;
-
-colour = red ;
-colour = colour | blue ;
-colour - colour | green;
-
-//printf(" Inx: %d r: 0x%x g: 0x%x b:%x 0xCol: 0x%x \n",inx,red,green,blue,colour);
-
-  //  colour = C_DIM_GRAY;
-//    if (fft_val < 95) colour = RED;
-//else colour = GREEN;
-  //  if (fft_val  100) colour = RED;    
-
+    colour = red ;
+    colour = colour | blue ;
+    colour - colour | green;
 
     set_pixel(wfall_buf,point , 0, colour);
-   // set_pixel(wfall_buf,point+1 , 0, colour);
-   // set_pixel(wfall_buf,point+2 , 0, colour);
-   // set_pixel(wfall_buf,point+3, 0, colour);
-   // set_pixel(wfall_buf,point+4 , 0, colour);
-   // set_pixel(wfall_buf,point+5 , 0, colour);
     }
 
-//copy_surface_to_image(wfall_buf,loc_x,loc_y);
-
 //Scroll all lines up, starting from the bottom
-for(int ll = WFALL_HEIGHT; ll >=0 ; ll--)
+    for(int ll = WFALL_HEIGHT; ll >=0 ; ll--)
     {
     for(int pp = 0;pp<WFALL_WIDTH;pp++)
         {
@@ -195,7 +178,6 @@ for(int ll = WFALL_HEIGHT; ll >=0 ; ll--)
     }
 
 copy_surface_to_image(wfall_buf,0,250,WFALL_WIDTH,WFALL_HEIGHT); // (buf,loc_x,lox_y,sz_x,sz_y)
-
 }
 #endif
 
@@ -253,13 +235,14 @@ while(1)
         err= ioctl(fbfd, FBIO_WAITFORVSYNC, &dummy); // Wait for frame sync
 
     draw_grid();
+    //copy grid
+    copy_surface_to_image(scope_buf,0,0,SCOPE_WIDTH,SCOPE_HEIGHT); // (buf,loc_x,lox_y,sz_x,sz_y)
 
-    //copy_surface_to_image(scope_buf,0,0,SCOPE_WIDTH,SCOPE_HEIGHT); // (buf,loc_x,lox_y,sz_x,sz_y)
-
+    //do chosen FFT
+  //draw_fill_fft();
+    draw_trace_fft();
+    //then waterfall
     draw_waterfall();
-
-    //draw_fill_fft();
-    //draw_trace_fft();
     }
 
 printf(" Debug at %d\n",__LINE__);
