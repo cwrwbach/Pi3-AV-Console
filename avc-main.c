@@ -17,13 +17,14 @@
 
 #include "avc-lib.h"
 #include "avc-colours.h"
+#include "waterfall.h"
 
 #define FFT_SIZE 1024
 
 #define FRAME_BUF_WIDTH 800
 #define FRAME_BUF_HEIGHT 480
-#define SCOPE_WIDTH 700
-#define SCOPE_HEIGHT 300
+#define SCOPE_WIDTH 800
+#define SCOPE_HEIGHT 120
 
 #define WFALL_WIDTH 700
 #define WFALL_HEIGHT 300
@@ -52,22 +53,24 @@ int n_horiz;
 int n_verts;
 int h_gap,v_gap;
 
-n_horiz=8;
+n_horiz=6;
 n_verts = 12;
 
 v_gap = SCOPE_WIDTH/(n_verts-2);
 h_gap = SCOPE_HEIGHT/(n_horiz);
 
-for(i=1;i<n_horiz-1;i++)
+for(i=1;i<n_horiz;i++)
     plot_dotted_line(scope_buf,0,i*h_gap,SCOPE_WIDTH,i*h_gap,0x00808000);//YELLOW);
 
 for(i=1;i<n_verts-2;i++)
-    plot_dotted_line(scope_buf,i*v_gap,0,i*v_gap,SCOPE_HEIGHT-50,0x00008000);//);
+    plot_dotted_line(scope_buf,i*v_gap,0,i*v_gap,SCOPE_HEIGHT,0x00008000);//);
+
+plot_thick_rectangle(scope_buf,0,0,SCOPE_WIDTH-2,SCOPE_HEIGHT-2,BLUE);
 }
 
 //------------------
 
-void draw_fft()
+void draw_fill_fft()
 {
 int bins_n;
 uint8_t val;
@@ -75,18 +78,56 @@ int nv;
 
 nv=0;
 
-bins_n = 600;
+bins_n = 800;
 
 
 for(int n = 0; n<bins_n; n++)
     {
-    //val = 230 - rand() % 50;
-val = fft_video_buf[n];
-    plot_line(frame_buf, nv+100, val, nv+100, 230, WHITE);
+    val = 117 - rand() % 50;
+
+if(n==400) val = 20;
+    val = fft_video_buf[n]/2;
+    plot_line(frame_buf, nv, val, nv, 117, MAGENTA);
     nv++;
     }
 }
 
+
+
+void draw_trace_fft()
+{
+int bins_n;
+uint8_t val;
+int nv;
+uint8_t db_lev,last;
+
+nv=0;
+
+bins_n = 800;
+
+
+
+for(int iii = 0; iii<800;iii+=1)
+    {
+    db_lev=fft_video_buf[iii]/2;
+   // plot_line(frame_buf,iii,120,iii,db_lev+5,BLUE);
+
+    plot_line(frame_buf,iii,last,iii,db_lev,WHITE);
+    last = db_lev;
+    }
+
+/*
+for(int n = 0; n<bins_n; n++)
+    {
+    val = 117 - rand() % 50;
+
+if(n==400) val = 20;
+   // val = fft_video_buf[n];
+    plot_line(frame_buf, nv, val, nv, 117, MAGENTA);
+    nv++;
+    }
+*/
+}
 //=========
 
 
@@ -110,15 +151,22 @@ if(wf_ln > WFALL_HEIGHT)
 
 
 //Draw first line of waterfall
-for(point=0;point<600;point++) //FFT SIZE
+for(point=0;point<800;point++) //FFT SIZE
     {
-    fft_val = (rand() % 100) ;//255-(fft_video_buf[point]);
-    fft_val*=1 ;
-    colour = 0x00204040; // rgb565(turbo[fft_val][0]/8,turbo[fft_val][1]/4,turbo[fft_val][2]/8);
+  //  fft_val = (rand() % 100) ;//255-(fft_video_buf[point]);
+ //   fft_val*=1 ;
 
-    colour = C_DIM_GRAY;
-    if (fft_val > 20) colour = GREEN;
-    if (fft_val > 80) colour = RED;    
+fft_val = point/4; //fft_video_buf[point];
+printf(" %d \n",fft_val);
+
+ //   colour =(turbo[fft_val][0]/8,turbo[fft_val][1]/4,turbo[fft_val][2]/8);
+
+colour = point * 8192 * 77;
+
+  //  colour = C_DIM_GRAY;
+//    if (fft_val < 95) colour = RED;
+//else colour = GREEN;
+  //  if (fft_val  100) colour = RED;    
 
     set_pixel(wfall_buf,point , 0, colour);
    // set_pixel(wfall_buf,point+1 , 0, colour);
@@ -182,14 +230,14 @@ frame_buf = mmap(0, fb_data_size, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
 
 clear_screen(0x00000000);
 
+//draw_grid();
+
 plot_large_string(frame_buf,360,300,"SCOPE",WHITE);
 
-plot_thick_rectangle(scope_buf,0,0,700,SCOPE_HEIGHT-50,BLUE);
-
-draw_grid();
 
 plot_line(scope_buf,350,230,350,250,RED);
 
+//draw_waterfall();
 
 while(1)
     {
@@ -198,8 +246,13 @@ while(1)
         err= ioctl(fbfd, FBIO_WAITFORVSYNC, &dummy); // Wait for frame sync
 
     draw_grid();
-    copy_surface_to_image(scope_buf,50,0,SCOPE_WIDTH,SCOPE_HEIGHT); // (buf,loc_x,lox_y,sz_x,sz_y)
-    draw_fft();
+
+    copy_surface_to_image(scope_buf,0,0,SCOPE_WIDTH,SCOPE_HEIGHT); // (buf,loc_x,lox_y,sz_x,sz_y)
+
+    //draw_waterfall();
+
+    //draw_fill_fft();
+    draw_trace_fft();
     }
 
 printf(" Debug at %d\n",__LINE__);
