@@ -26,8 +26,8 @@
 #define SCOPE_WIDTH 800
 #define SCOPE_HEIGHT 120
 
-#define WFALL_WIDTH 700
-#define WFALL_HEIGHT 300
+#define WFALL_WIDTH 800
+#define WFALL_HEIGHT 200
 
 struct fb_var_screeninfo vinfo;
 struct fb_fix_screeninfo finfo;
@@ -131,16 +131,16 @@ if(n==400) val = 20;
 //=========
 
 
-#if 0
+#if 1
 
 void draw_waterfall()
 {
-uint32_t colour;
+uint32_t colour,red,green,blue;
 int point;
 unsigned char fft_val;
 int loc_x,loc_y;
 unsigned int wf_ln;
-
+int inx;
 
 loc_x = 10;
 loc_y = 10;
@@ -153,20 +153,27 @@ if(wf_ln > WFALL_HEIGHT)
 //Draw first line of waterfall
 for(point=0;point<800;point++) //FFT SIZE
     {
-  //  fft_val = (rand() % 100) ;//255-(fft_video_buf[point]);
- //   fft_val*=1 ;
-
-fft_val = point/4; //fft_video_buf[point];
-printf(" %d \n",fft_val);
+    inx = 255-(fft_video_buf[point]);
 
  //   colour =(turbo[fft_val][0]/8,turbo[fft_val][1]/4,turbo[fft_val][2]/8);
 
-colour = point * 8192 * 77;
+red = (uint32_t) turbo[inx][0];
+green=(uint32_t) turbo[inx][1];
+blue =(uint32_t) turbo[inx][2];
+red = red<<16;
+green = green <<8;
+
+colour = red ;
+colour = colour | blue ;
+colour - colour | green;
+
+//printf(" Inx: %d r: 0x%x g: 0x%x b:%x 0xCol: 0x%x \n",inx,red,green,blue,colour);
 
   //  colour = C_DIM_GRAY;
 //    if (fft_val < 95) colour = RED;
 //else colour = GREEN;
   //  if (fft_val  100) colour = RED;    
+
 
     set_pixel(wfall_buf,point , 0, colour);
    // set_pixel(wfall_buf,point+1 , 0, colour);
@@ -187,7 +194,7 @@ for(int ll = WFALL_HEIGHT; ll >=0 ; ll--)
         }
     }
 
-copy_surface_to_image(wfall_buf,50,0,WFALL_WIDTH,WFALL_HEIGHT); // (buf,loc_x,lox_y,sz_x,sz_y)
+copy_surface_to_image(wfall_buf,0,250,WFALL_WIDTH,WFALL_HEIGHT); // (buf,loc_x,lox_y,sz_x,sz_y)
 
 }
 #endif
@@ -247,12 +254,12 @@ while(1)
 
     draw_grid();
 
-    copy_surface_to_image(scope_buf,0,0,SCOPE_WIDTH,SCOPE_HEIGHT); // (buf,loc_x,lox_y,sz_x,sz_y)
+    //copy_surface_to_image(scope_buf,0,0,SCOPE_WIDTH,SCOPE_HEIGHT); // (buf,loc_x,lox_y,sz_x,sz_y)
 
-    //draw_waterfall();
+    draw_waterfall();
 
     //draw_fill_fft();
-    draw_trace_fft();
+    //draw_trace_fft();
     }
 
 printf(" Debug at %d\n",__LINE__);
