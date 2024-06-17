@@ -29,6 +29,9 @@
 #define WFALL_WIDTH 800
 #define WFALL_HEIGHT 200
 
+#define BTN_WIDTH 70
+#define BTN_HEIGHT 70
+
 struct fb_var_screeninfo vinfo;
 struct fb_fix_screeninfo finfo;
 int fbfd; // framebuffer file descriptor
@@ -43,6 +46,7 @@ uint status_pos;
 uint32_t * frame_buf;
 uint32_t * scope_buf;
 uint32_t * wfall_buf;
+uint32_t * btn_buf[10];
 
 //================
 
@@ -130,9 +134,6 @@ if(n==400) val = 20;
 }
 //=========
 
-
-#if 1
-
 void draw_waterfall()
 {
 uint32_t colour,red,green,blue;
@@ -177,9 +178,8 @@ for(point=0;point<800;point++) //FFT SIZE
         }
     }
 
-copy_surface_to_image(wfall_buf,0,250,WFALL_WIDTH,WFALL_HEIGHT); // (buf,loc_x,lox_y,sz_x,sz_y)
+copy_surface_to_image(wfall_buf,0,150,WFALL_WIDTH,WFALL_HEIGHT); // (buf,loc_x,lox_y,sz_x,sz_y)
 }
-#endif
 
 //=========
 
@@ -214,19 +214,24 @@ int fb_data_size = 800 * 480 * 4;
 
 scope_buf = malloc(SCOPE_WIDTH*SCOPE_HEIGHT*4);
 wfall_buf = malloc(WFALL_WIDTH*WFALL_HEIGHT*4);
+
+for(int b=0;b<10;b++)
+    btn_buf[b] = malloc(BTN_WIDTH*BTN_HEIGHT*4);
+
 // map framebuffer to user memory 
 frame_buf = mmap(0, fb_data_size, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
 
 clear_screen(0x00000000);
 
-//draw_grid();
-
 plot_large_string(frame_buf,360,300,"SCOPE",WHITE);
-
 
 plot_line(scope_buf,350,230,350,250,RED);
 
-//draw_waterfall();
+for(int b=0;b<10;b++)
+    {
+    plot_filled_rectangle(frame_buf,5+(b*80),390,BTN_WIDTH,BTN_HEIGHT,DARK_GREEN);
+    }
+
 
 while(1)
     {

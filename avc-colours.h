@@ -8,7 +8,7 @@
 #define YELLOW  0x00ffff00
 #define CYAN    0x0000ffff
 #define MAGENTA 0x00ff00ff
-#define DARK_GREEN 0x0180
+#define DARK_GREEN 0x00008000
 
 
 #define C_MAROON                       0x8000
